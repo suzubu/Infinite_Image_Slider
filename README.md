@@ -8,8 +8,6 @@
 
 ![Infinite Scroller Demo](media/infinite-scroller-preview.gif)
 
-*(Replace this with your recorded GIF showing the scroll effect.)*
-
 ---
 
 ## ⚙️ Getting Started
