@@ -38,6 +38,7 @@ let currentProjectIndex = 0; // Currently active project index (used for DOM upd
 projectTitle.textContent = slides[0].title; // Set initial title from slides array
 projectLink.href = slides[0].url; // Set initial link href from slides array
 
+// === [ Three.js Scene Setup ] ===
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -45,7 +46,6 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-
 camera.position.z = 5;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -54,6 +54,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0xffffff, 0);
 container.appendChild(renderer.domElement);
 
+// === [ Calculate Plane Size Based on Camera FOV ] ===
 const calculatePlaneDimensions = () => {
   const fov = camera.fov * (Math.PI / 180);
   const viewportHeight = 2 * Math.tan(fov / 2) * camera.position.z;
@@ -68,6 +69,7 @@ const calculatePlaneDimensions = () => {
 
 const dimensions = calculatePlaneDimensions();
 
+// === [ Load Textures from Slide Data ] ===
 const loadTextures = () => {
   const textLoader = new THREE.TextureLoader();
 
@@ -91,6 +93,7 @@ function preloadAllTextures() {
 
 preloadAllTextures();
 
+// === [ Plane Geometry and Shader Material ] ===
 const geometry = new THREE.PlaneGeometry(
   dimensions.width,
   dimensions.height,
@@ -113,6 +116,7 @@ const material = new THREE.ShaderMaterial({
 const plane = new THREE.Mesh(geometry, material);
 scene.add(plane);
 
+// === [ Slide Positioning + Texture Index Tracking ] ===
 function determineTextureIndices(position) {
   const totalImages = slides.length;
 
@@ -144,6 +148,7 @@ function updateTextureIndices() {
   material.uniforms.uNextTexture.value = textures[indices.nextIndex];
 }
 
+// === [ Snapping Logic for Scroll Lock-In ] ===
 function snapToNearestImage() {
   if (!isSnapping) {
     isSnapping = true;
@@ -163,7 +168,7 @@ function hideTitle() {
   if (!titleHidden && !titleAnimating) {
     titleAnimating = true;
     projectTitle.style.transform = "translateY(20px)";
-    projectTitle.style.opacity = "0"; // ← fade out
+    projectTitle.style.opacity = "0";
 
     setTimeout(() => {
       titleAnimating = false;
@@ -179,7 +184,7 @@ function showTitle() {
 
     titleAnimating = true;
     projectTitle.style.transform = "translateY(0px)";
-    projectTitle.style.opacity = "1"; // ← fade in
+    projectTitle.style.opacity = "1";
 
     setTimeout(() => {
       titleAnimating = false;
@@ -188,6 +193,7 @@ function showTitle() {
   }
 }
 
+// === [ Resize Event Listener for Responsive Behavior ] ===
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -205,6 +211,7 @@ window.addEventListener("resize", () => {
   );
 });
 
+// === [ Mouse Wheel Event Listener for Scroll Handling ] ===
 window.addEventListener(
   "wheel",
   (event) => {
@@ -227,6 +234,7 @@ window.addEventListener(
   { passive: false }
 );
 
+// === [ Animation Loop ] ===
 function animate() {
   requestAnimationFrame(animate);
 
@@ -247,24 +255,22 @@ function animate() {
   }
 
   updateTextureIndices();
+
+  // Scale plane based on scroll velocity
   const baseScale = 1.0;
   const scaleIntensity = 0.1;
+  const scale =
+    scrollIntensity > 0
+      ? baseScale + scrollIntensity * scaleIntensity
+      : baseScale - Math.abs(scrollIntensity) * scaleIntensity;
+  plane.scale.set(scale, scale, 1);
 
-  if (scrollIntensity > 0) {
-    const scale = baseScale + scrollIntensity * scaleIntensity;
-    plane.scale.set(scale, scale, 1);
-  } else {
-    const scale = baseScale - Math.abs(scrollIntensity) * scaleIntensity;
-    plane.scale.set(scale, scale, 1);
-  }
-
+  // Apply drag/friction and snap detection
   targetScrollIntensity *= 0.98;
   const scrollDelta = Math.abs(targetScrollPosition - scrollPosition);
 
   if (scrollDelta < movementThreshold) {
-    if (isMoving && !isSnapping) {
-      snapToNearestImage();
-    }
+    if (isMoving && !isSnapping) snapToNearestImage();
 
     if (scrollDelta < 0.0001) {
       if (!isStable) {
