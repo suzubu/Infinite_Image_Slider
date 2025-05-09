@@ -1,4 +1,4 @@
-# 🖼️ Infinite Image Scroller
+# 🖼️ Infinite Image Scroller Feature
 
 > A smooth, scroll-driven infinite image carousel with GLSL shaders for interactive transitions. Built using Three.js and custom WebGL shaders for visual continuity and distortion.
 
@@ -14,7 +14,7 @@
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/suzubu/infinite-image-scroller.git
+git clone https://github.com/suzubu/infinite-image-scroller-feature.git
 
 # 2. Open index.html directly in your browser
 open index.html
