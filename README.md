@@ -82,4 +82,4 @@ MIT — free to remix and experiment with.
 
 ## 🙋‍♀️ Author
 
-Created by [suzubu](https://github.com/suzubu)
+Made with ☕ + 🎧 by [suzubu](https://github.com/suzubu)
